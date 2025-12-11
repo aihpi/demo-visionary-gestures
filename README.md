@@ -123,11 +123,7 @@ All processing happens client-side in your browser. Your webcam feed is analyzed
 
 - [MediaPipe Hands Documentation](https://google.github.io/mediapipe/solutions/hands.html) - Technical details on the hand detection model
 - [Rock Paper Scissors Lizard Spock Rules](https://bigbangtheory.fandom.com/wiki/Rock,_Paper,_Scissors,_Lizard,_Spock) - Complete explanation of the extended game rules
-- [HPI Artificial Intelligence & Sustainability Center](https://hpi.de/kisz) - Project sponsor and research center
-
-## Future Enhancements
-
-Potential improvements being considered include multiplayer support, additional gesture variations, training the model to recognize personalized gesture styles, and optimization for mobile devices.
+- [HPI AISC](https://hpi.de/kisz)
 
 ## Author
 
@@ -135,7 +131,7 @@ Developed as part of research at the HPI Artificial Intelligence & Sustainabilit
 
 ## License
 
-[Specify your license here - e.g., MIT, Apache 2.0, GPL, etc.]
+GPLv3
 
 ---
 
