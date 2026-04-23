@@ -1,0 +1,85 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gestures
+  labels:
+    app: gestures
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gestures
+  template:
+    metadata:
+      labels:
+        app: gestures
+    spec:
+      imagePullSecrets:
+        - name: ghcr-credentials
+      containers:
+        - name: gestures
+          image: ghcr.io/aihpi/gestures:sha-3a3d844
+          imagePullPolicy: Always
+          command:
+            - uvicorn
+          args:
+            - api:app
+            - --host
+            - 0.0.0.0
+            - --port
+            - "8000"
+            - --ws
+            - websockets
+          ports:
+            - name: http
+              containerPort: 8000
+          env:
+            - name: WHISPER_API_HOST
+              value: "0.0.0.0"
+            - name: WHISPER_API_PORT
+              value: "8000"
+            - name: WHISPER_MODEL_REPO_ID
+              value: aman4014/whisper-i8-german
+            - name: WHISPER_MODEL_REVISION
+              value: main
+          volumeMounts:
+            - name: huggingface-cache
+              mountPath: /root/.cache/huggingface
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 20
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 60
+            periodSeconds: 30
+          resources:
+            limits:
+              nvidia.com/gpu: "1"
+            requests:
+              nvidia.com/gpu: "1"
+      volumes:
+        - name: huggingface-cache
+          emptyDir: {}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gestures
+  labels:
+    app: gestures
+spec:
+  type: LoadBalancer
+  selector:
+    app: gestures
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8000
+      protocol: TCP
+      nodePort: 30805
