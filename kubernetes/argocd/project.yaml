@@ -1,0 +1,22 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: gestures
+  namespace: argocd
+spec:
+  description: This project lets you play Rock Paper Scissors against a computer using real-time hand gesture recognition with AI.
+  sourceRepos:
+    - https://github.com/aihpi/demo-visionary-gestures.git
+  destinations:
+    - namespace: gestures
+      server: https://kubernetes.default.svc
+  clusterResourceWhitelist:
+    - group: ""
+      kind: Namespace
+  namespacedResourceWhitelist:
+    - group: ""
+      kind: "*"
+    - group: apps
+      kind: "*"
+    - group: networking.k8s.io
+      kind: "*"

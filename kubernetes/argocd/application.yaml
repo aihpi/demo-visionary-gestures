@@ -1,0 +1,37 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: gestures
+  namespace: argocd
+spec:
+  project: gestures
+  source:
+    repoURL: https://github.com/aihpi/demo-visionary-gestures.git
+    targetRevision: main
+    path: kubernetes
+    directory:
+      recurse: false
+      exclude: "argocd/**"
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: gestures
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ApplyOutOfSyncOnly=true
+      - PruneLast=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 10s
+        factor: 2
+        maxDuration: 5m
+  ignoreDifferences:
+    - group: apps
+      kind: Deployment
+      name: docling-service
+      jsonPointers:
+        - /spec/replicas
