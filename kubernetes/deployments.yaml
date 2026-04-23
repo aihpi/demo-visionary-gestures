@@ -18,7 +18,7 @@ spec:
         - name: ghcr-credentials
       containers:
         - name: gestures
-          image: ghcr.io/aihpi/gestures:sha-3a3d844
+          image: ghcr.io/aihpi/demo-visionary-gestures:sha-3a3d844
           imagePullPolicy: Always
           command:
             - uvicorn
