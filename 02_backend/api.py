@@ -11,7 +11,7 @@ from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 
-from mediapipe.tasks.python.vision import drawing_utils as mp_drawing
+from mediapipe.solutions import drawing_utils as mp_drawing
 from preprocessing import prepocessing_hand_landmarks, logging as log_landmarks, GESTURE_MAP
 import model as gesture_model_module
 
