@@ -1,15 +1,12 @@
 import time
 import mediapipe as mp
-from mediapipe.tasks import python
-from mediapipe.tasks.python import vision
+from mediapipe.tasks.python.vision import drawing_utils as mp_drawing
 import cv2
-from mediapipe import solutions
-from mediapipe.framework.formats import landmark_pb2
 import numpy as np
 import tensorflow as tf
 import model
 from preprocessing import prepocessing_hand_landmarks, select_gesture, logging, GESTURE_MAP
-import preprocessing
+HandLandmarksConnections = mp.tasks.vision.HandLandmarksConnections
 
 import os
 script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -54,30 +51,28 @@ latest_confidence = 0.0
 # Helper function to draw the hand landmarks on the image (from google mediapipe doc [https://colab.research.google.com/github/googlesamples/mediapipe/blob/main/examples/hand_landmarker/python/hand_landmarker.ipynb#scrollTo=s3E6NFV-00Qt&uniqifier=1])
 def draw_landmarks_on_image(rgb_image, detection_result):
   hand_landmarks_list = detection_result.hand_landmarks
-  handedness_list = detection_result.handedness
   annotated_image_copy = np.copy(rgb_image)
 
   global latest_confidence
 
-  color = (latest_confidence * 200, 0, (1 - latest_confidence) * 255)
-  landmark_spec = solutions.drawing_styles.DrawingSpec(color=color, thickness=2, circle_radius=2)
-  connection_spec = solutions.drawing_styles.DrawingSpec(color=color, thickness=3)
+  color = (int(latest_confidence * 200), 0, int((1 - latest_confidence) * 255))
+  landmark_spec = mp_drawing.DrawingSpec(color=color, thickness=2, circle_radius=2)
+  connection_spec = mp_drawing.DrawingSpec(color=color, thickness=3)
+
+  # New draw_landmarks requires BGR; convert, draw, convert back
+  bgr_copy = cv2.cvtColor(annotated_image_copy, cv2.COLOR_RGB2BGR)
 
   for idx in range(len(hand_landmarks_list)):
     hand_landmarks = hand_landmarks_list[idx]
 
-    hand_landmarks_proto = landmark_pb2.NormalizedLandmarkList()
-    hand_landmarks_proto.landmark.extend([
-      landmark_pb2.NormalizedLandmark(x=landmark.x, y=landmark.y, z=landmark.z) for landmark in hand_landmarks
-    ])
-    solutions.drawing_utils.draw_landmarks(
-      annotated_image_copy,
-      hand_landmarks_proto,
-      solutions.hands.HAND_CONNECTIONS,
+    mp_drawing.draw_landmarks(
+      bgr_copy,
+      hand_landmarks,
+      HandLandmarksConnections.HAND_CONNECTIONS,
       landmark_spec,
-        connection_spec
+      connection_spec
     )
-    height, width, _ = annotated_image_copy.shape
+    height, width, _ = bgr_copy.shape
     x_coordinates = [landmark.x for landmark in hand_landmarks]
     y_coordinates = [landmark.y for landmark in hand_landmarks]
 
@@ -86,14 +81,13 @@ def draw_landmarks_on_image(rgb_image, detection_result):
     text_x = int(min(x_coordinates) * width)
     text_y = int(min(y_coordinates) * height) - MARGIN
 
+    #cv2.putText(bgr_copy, f"{hand_landmarks[0].category_name}", (text_x, text_y), cv2.FONT_HERSHEY_DUPLEX, FONT_SIZE, HANDEDNESS_TEXT_COLOR, FONT_THICKNESS, cv2.LINE_AA)
 
-    #cv2.putText(annotated_image_copy, f"{handedness[0].category_name}", (text_x, text_y), cv2.FONT_HERSHEY_DUPLEX, FONT_SIZE, HANDEDNESS_TEXT_COLOR, FONT_THICKNESS, cv2.LINE_AA)
-
-  return annotated_image_copy
+  return cv2.cvtColor(bgr_copy, cv2.COLOR_BGR2RGB)
 
 
 def result_processing_callback(result: HandLandmarkerResult, output_image, timestamp_ms):
-    global annotated_image, current_mode, current_gesture_class, latest
+    global annotated_image, current_mode, current_gesture_class
 
     # Preprocessing landmarks
     handedness_list, handlm_list = prepocessing_hand_landmarks(result)
@@ -168,7 +162,7 @@ def predict_gesture(result: HandLandmarkerResult):
 
 # Options to create HandLandmarker instance
 options = HandLandmarkerOptions(
-    base_options=BaseOptions(model_asset_path=model_path, delegate="GPU"),
+    base_options=BaseOptions(model_asset_path=model_path, delegate=BaseOptions.Delegate.CPU),
     running_mode=VisionRunningMode.LIVE_STREAM,
     num_hands=2,
     min_hand_detection_confidence=0.5,
