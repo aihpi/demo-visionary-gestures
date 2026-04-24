@@ -20,31 +20,9 @@ spec:
         - name: gestures
           image: ghcr.io/aihpi/demo-visionary-gestures:sha-29644f3
           imagePullPolicy: Always
-          command:
-            - uvicorn
-          args:
-            - api:app
-            - --host
-            - 0.0.0.0
-            - --port
-            - "8000"
-            - --ws
-            - websockets
           ports:
             - name: http
               containerPort: 8000
-          env:
-            - name: WHISPER_API_HOST
-              value: "0.0.0.0"
-            - name: WHISPER_API_PORT
-              value: "8000"
-            - name: WHISPER_MODEL_REPO_ID
-              value: aman4014/whisper-i8-german
-            - name: WHISPER_MODEL_REVISION
-              value: main
-          volumeMounts:
-            - name: huggingface-cache
-              mountPath: /root/.cache/huggingface
           readinessProbe:
             httpGet:
               path: /healthz
@@ -58,10 +36,15 @@ spec:
             initialDelaySeconds: 60
             periodSeconds: 30
           resources:
-            limits:
-              nvidia.com/gpu: "1"
             requests:
-              nvidia.com/gpu: "1"
+              memory: "512Mi"
+              cpu: "500m"
+            limits:
+              memory: "2Gi"
+              cpu: "2"
+          volumeMounts:
+            - name: huggingface-cache
+              mountPath: /root/.cache/huggingface
       volumes:
         - name: huggingface-cache
           emptyDir: {}
