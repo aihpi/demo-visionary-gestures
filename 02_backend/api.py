@@ -11,7 +11,7 @@ from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 
-from mediapipe.solutions import drawing_utils as mp_drawing
+from mediapipe.tasks.python.vision import drawing_utils as mp_drawing
 from preprocessing import prepocessing_hand_landmarks, logging as log_landmarks, GESTURE_MAP
 import model as gesture_model_module
 
@@ -112,7 +112,7 @@ def _process_frame(frame_bytes: bytes, mode: int, gesture_class: int, landmarker
     if result.hand_landmarks:
         annotated = _draw_landmarks(rgb, result, confidence)
 
-    # Draw status text (flip trick keeps text readable in mirrored feed)
+    # Mirror for selfie-style view, then draw text so it reads correctly.
     annotated = cv2.flip(annotated, 1)
     status = f"Mode: {'Recording' if mode == 1 else 'Normal'}"
     if mode == 1 and gesture_class >= 0:
@@ -121,7 +121,6 @@ def _process_frame(frame_bytes: bytes, mode: int, gesture_class: int, landmarker
     if mode == 0:
         cv2.putText(annotated, f"Prediction: {prediction}", (10, 60),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.7, (200, 0, 0), 2)
-    annotated = cv2.flip(annotated, 1)
 
     out_bgr = cv2.cvtColor(annotated, cv2.COLOR_RGB2BGR)
     _, buf = cv2.imencode('.jpg', out_bgr, [cv2.IMWRITE_JPEG_QUALITY, 75])
@@ -173,3 +172,8 @@ async def ws_endpoint(websocket: WebSocket):
                     }))
         except WebSocketDisconnect:
             pass
+
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
