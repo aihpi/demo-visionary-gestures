@@ -12,9 +12,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libgomp1 \
     && rm -rf /var/lib/apt/lists/*
 
-COPY requirements.txt .
+COPY 02_backend/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY . .
+COPY 02_backend/ .
+COPY 01_frontend/ ./01_frontend/
 
 CMD ["uvicorn", "api:app", "--host", "0.0.0.0", "--port", "8000"]

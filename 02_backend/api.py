@@ -28,7 +28,7 @@ HandLandmarksConnections = mp.tasks.vision.HandLandmarksConnections
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 HAND_LANDMARKER_PATH = os.path.join(SCRIPT_DIR, 'hand_landmarker.task')
 KERAS_MODEL_PATH = os.path.join(SCRIPT_DIR, 'model/rps_model.h5')
-FRONTEND_PATH = os.path.join(SCRIPT_DIR, '..', '01_frontend', 'index.html')
+FRONTEND_PATH = os.path.join(SCRIPT_DIR, '01_frontend', 'index.html')
 
 CONFIDENCE_THRESHOLD = 0.5
 
