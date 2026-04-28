@@ -18,7 +18,7 @@ spec:
         - name: ghcr-credentials
       containers:
         - name: gestures
-          image: ghcr.io/aihpi/demo-visionary-gestures:sha-892fb86
+          image: ghcr.io/aihpi/demo-visionary-gestures:sha-98d445a
           imagePullPolicy: Always
           ports:
             - name: http
