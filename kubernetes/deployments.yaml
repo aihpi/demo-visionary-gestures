@@ -49,19 +49,4 @@ spec:
         - name: huggingface-cache
           emptyDir: {}
 
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: gestures
-  labels:
-    app: gestures
-spec:
-  type: LoadBalancer
-  selector:
-    app: gestures
-  ports:
-    - name: http
-      port: 80
-      targetPort: 8000
-      protocol: TCP
+
