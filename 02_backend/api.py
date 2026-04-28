@@ -11,7 +11,6 @@ from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 
-from mediapipe.tasks.python.vision import drawing_utils as mp_drawing
 from preprocessing import prepocessing_hand_landmarks, logging as log_landmarks, GESTURE_MAP
 import model as gesture_model_module
 
@@ -35,7 +34,13 @@ CONFIDENCE_THRESHOLD = 0.5
 
 gesture_model = None
 if os.path.exists(KERAS_MODEL_PATH):
-    gesture_model = tf.keras.models.load_model(KERAS_MODEL_PATH)
+    try:
+        gesture_model = tf.keras.models.load_model(KERAS_MODEL_PATH)
+    except TypeError:
+        gesture_model = gesture_model_module.create_model(
+            gesture_model_module.FEATURES, gesture_model_module.NUM_CLASSES
+        )
+        gesture_model.load_weights(KERAS_MODEL_PATH)
 
 
 def _create_landmarker():
@@ -55,15 +60,14 @@ def _create_landmarker():
 
 def _draw_landmarks(rgb_image: np.ndarray, result: HandLandmarkerResult, confidence: float) -> np.ndarray:
     color = (int(confidence * 200), 0, int((1 - confidence) * 255))
-    landmark_spec = mp_drawing.DrawingSpec(color=color, thickness=2, circle_radius=2)
-    connection_spec = mp_drawing.DrawingSpec(color=color, thickness=3)
+    h, w = rgb_image.shape[:2]
     bgr = cv2.cvtColor(rgb_image.copy(), cv2.COLOR_RGB2BGR)
     for hand_landmarks in result.hand_landmarks:
-        mp_drawing.draw_landmarks(
-            bgr, hand_landmarks,
-            HandLandmarksConnections.HAND_CONNECTIONS,
-            landmark_spec, connection_spec,
-        )
+        for conn in HandLandmarksConnections.HAND_CONNECTIONS:
+            s, e = hand_landmarks[conn.start], hand_landmarks[conn.end]
+            cv2.line(bgr, (int(s.x * w), int(s.y * h)), (int(e.x * w), int(e.y * h)), color, 3)
+        for lm in hand_landmarks:
+            cv2.circle(bgr, (int(lm.x * w), int(lm.y * h)), 2, color, 2)
     return cv2.cvtColor(bgr, cv2.COLOR_BGR2RGB)
 
 
