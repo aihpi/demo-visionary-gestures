@@ -105,5 +105,5 @@ jobs:
           else
             git add kubernetes/deployments.yaml
             git commit -m "chore: update demo-visionary-gestures image to ${TAG_NAME} [skip ci]"
-            git push origin main
+            git push origin HEAD:${{ github.ref_name }}
           fi
