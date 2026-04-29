@@ -1,8 +1,6 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { HandLandmarker, FilesetResolver } from '@mediapipe/tasks-vision';
 import useGestureRecognition from './useGestureRecognition';
-import modelUrl from '../../public/model/model.json?url';
-import binUrl from '../../public/model/group1-shard1of1.bin?url';
 
 const getModelPath = () => {
   const base = import.meta.env.BASE_URL || '/';
