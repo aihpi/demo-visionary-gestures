@@ -55,7 +55,7 @@ const useGestureRecognition = (modelPath, gameMode = 'rps') => {
         setIsLoading(true);
         setError(null);
 
-        const model = await tf.loadGraphModel(modelPath);
+        const model = await tf.loadLayersModel(modelPath);
 
         if (isMounted) {
           setModel(model);
