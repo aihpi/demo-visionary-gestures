@@ -43,37 +43,5 @@ spec:
               memory: "128Mi"
               cpu: "200m"
 
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: gestures-ui
-  labels:
-    app: gestures-ui
-spec:
-  selector:
-    app: gestures-ui
-  ports:
-    - name: http
-      port: 80
-      targetPort: 80
 
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: gestures-ingress
-  labels:
-    app: gestures-ui
-spec:
-  rules:
-    - host: gestures.aisc.hpi.de
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: gestures-ui
-                port:
-                  number: 80
+

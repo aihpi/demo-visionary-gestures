@@ -7,7 +7,7 @@ spec:
   project: gestures
   source:
     repoURL: https://github.com/aihpi/demo-visionary-gestures.git
-    targetRevision: main
+    targetRevision: latest_from_gitpages
     path: kubernetes
     directory:
       recurse: false
