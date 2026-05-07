@@ -22,7 +22,7 @@ spec:
                   - key: node-type
                     operator: In
                     values:
-                      - vx
+                      - cpu
       imagePullSecrets:
         - name: ghcr-credentials
       containers:
